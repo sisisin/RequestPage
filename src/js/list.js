@@ -36,8 +36,10 @@ var List = React.createClass({
 			}.bind(this)
 		});
 	},
-	handleApproveSubmit: function () {
-		
+	handleApproveSubmit: function (userId) {
+		var newUserStatus = this.state.userStatus;
+		newUserStatus[userId].state = '接続中';
+		this.setState({userStatus: newUserStatus});
 	},
 	componentDidMount: function () {
     this.loadUserStatusFromServer();
@@ -59,24 +61,21 @@ var RequestForm = React.createClass({
 		var fromYear = React.findDOMNode(this.refs.fromYear).value.trim();
 		var fromMonth = React.findDOMNode(this.refs.fromMonth).value.trim();
 		var fromDay = React.findDOMNode(this.refs.fromDay).value.trim();
+		var fromTime = React.findDOMNode(this.refs.fromTime).value.trim();
 		var toYear = React.findDOMNode(this.refs.toYear).value.trim();
 		var toMonth = React.findDOMNode(this.refs.toMonth).value.trim();
 		var toDay = React.findDOMNode(this.refs.toDay).value.trim();
+		var toTime = React.findDOMNode(this.refs.toTime).value.trim();
 		if (!fromYear || !fromMonth) {
 		return;
 		}
 
 		this.props.onRequestSubmit({
 			name:'sisisin',
-			term:fromYear + '/' + fromMonth + '/' + fromDay  + ' ~ ' + toYear + '/' + toMonth  + '/' + toDay,
+			from:fromYear + '/' + fromMonth + '/' + fromDay + ' ' + fromTime + ':00',
+			to:toYear + '/' + toMonth  + '/' + toDay + ' ' + toTime + ':00',
 			state:'待ち'
 		});
-		React.findDOMNode(this.refs.fromYear).value = '';
-		React.findDOMNode(this.refs.fromYear).value = '';
-		React.findDOMNode(this.refs.fromYear).value = '';
-		React.findDOMNode(this.refs.fromYear).value = '';
-		React.findDOMNode(this.refs.fromYear).value = '';
-		React.findDOMNode(this.refs.fromYear).value = '';
 		return;
 	},
 	render: function () {
@@ -84,10 +83,12 @@ var RequestForm = React.createClass({
 			<form onSubmit={this.handleSubmit}>
 					<select ref="fromYear"><option>2015</option></select>年
 					<select ref="fromMonth"><option>1</option></select>月
-					<select ref="fromDay"><option>1</option></select>日〜
+					<select ref="fromDay"><option>1</option></select>日
+					<select ref="fromTime"><option>01</option></select>時〜
 					<select ref="toYear"><option>2015</option></select>年
 					<select ref="toMonth"><option>1</option></select>月
-					<select ref="toDay"><option>2</option></select>日まで
+					<select ref="toDay"><option>2</option></select>日
+					<select ref="toTime"><option>02</option></select>時まで
 					<input type="submit" value="送信"></input>
 				</form>	
 		);
@@ -98,10 +99,11 @@ var UserList = React.createClass({
 	render: function () {
 		var handleApproveSubmit = this.props.handleApproveSubmit;
 		var status = this.props.data.map(function(user, i) {
+			var term = user.from + ' ~ ' + user.to;
 			return (
 				<tr>
 					<td>{user.name}</td>
-					<td>{user.term}</td>
+					<td>{term}</td>
 					<td>{user.state}</td>
 					<td><UserRequestApprove userId={i} handleApproveSubmit={handleApproveSubmit}/></td>
 				</tr>);
@@ -121,8 +123,10 @@ var UserList = React.createClass({
 }).bind(this);
 
 var UserRequestApprove = React.createClass({
-	handleSubmit: function () {
+	handleSubmit: function (e) {
+		e.preventDefault();
 		this.props.handleApproveSubmit(this.props.userId);
+		return;
 	},
 	render: function () {
 		return (
