@@ -1,5 +1,8 @@
 var React = require('react/addons');
 var $ = require('jquery');
+var master = require('../../public/js/master');
+var mState = master.state;
+var mApprove = master.approveButton;
 
 var List = React.createClass({
 	getInitialState: function () {
@@ -38,7 +41,7 @@ var List = React.createClass({
 	},
 	handleApproveSubmit: function (userId) {
 		var newUserStatus = this.state.userStatus;
-		newUserStatus[userId].state = '接続中';
+		newUserStatus[userId].state = 1;
 		this.setState({userStatus: newUserStatus});
 	},
 	componentDidMount: function () {
@@ -74,7 +77,7 @@ var RequestForm = React.createClass({
 			name:'sisisin',
 			from:fromYear + '/' + fromMonth + '/' + fromDay + ' ' + fromTime + ':00',
 			to:toYear + '/' + toMonth  + '/' + toDay + ' ' + toTime + ':00',
-			state:'待ち'
+			state:0
 		});
 		return;
 	},
@@ -104,8 +107,8 @@ var UserList = React.createClass({
 				<tr>
 					<td>{user.name}</td>
 					<td>{term}</td>
-					<td>{user.state}</td>
-					<td><UserRequestApprove userId={i} handleApproveSubmit={handleApproveSubmit}/></td>
+					<td>{mState[user.state]}</td>
+					<td><UserRequestApprove userId={i} userState={user.state} handleApproveSubmit={handleApproveSubmit}/></td>
 				</tr>);
 		});
 		return (
@@ -130,7 +133,7 @@ var UserRequestApprove = React.createClass({
 	},
 	render: function () {
 		return (
-			<form onSubmit={this.handleSubmit}><input type="submit" value="承認" /></form>
+			<form onSubmit={this.handleSubmit}><input type="submit" value={mApprove[this.props.userState]} /></form>
 		);
 	}
 });
