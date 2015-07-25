@@ -6,11 +6,11 @@ var mApprove = master.approveButton;
 
 var List = React.createClass({
 	getInitialState: function () {
-		return { userStatus: [] };
+		return { userStatus: [], TANTOList:[] };
 	},
 	loadUserStatusFromServer: function () {
 		$.ajax({
-      url: this.props.url,
+      url: this.props.userStatusUrl,
       dataType: 'json',
       cache: false,
       success: function(data) {
@@ -19,7 +19,20 @@ var List = React.createClass({
       error: function(xhr, status, err) {
         console.error(this.props.url, status, err.toString());
       }.bind(this)
-    });	
+    });
+	},
+	loadTANTOListFromServer: function () {
+		$.ajax({
+      url: this.props.TANTOUrl,
+      dataType: 'json',
+      cache: false,
+      success: function(data) {
+        this.setState({TANTOList: data});
+      }.bind(this),
+      error: function(xhr, status, err) {
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)			
+		});
 	},
 	handleRequestSubmit: function (term) {
 		var terms = this.state.userStatus;
@@ -39,19 +52,21 @@ var List = React.createClass({
 			}.bind(this)
 		});
 	},
-	handleApproveSubmit: function (key) {
+	handleApproveSubmit: function (index) {
 		var newUserStatus = this.state.userStatus;
-		newUserStatus[key].state = 1;
+		newUserStatus[index].state = 1;
 		this.setState({userStatus: newUserStatus});
 	},
 	componentDidMount: function () {
     this.loadUserStatusFromServer();
-    setInterval(this.loadUserStatsFromServer, this.props.pollInterval);
+		this.loadTANTOListFromServer();
+    //setInterval(this.loadUserStatusFromServer, this.props.pollInterval);
+		//setInterval(this.loadTANTOListFromServer, this.pollInterval);
 	},
 	render: function () {
 		return (
 			<div>
-				<RequestForm onRequestSubmit={this.handleRequestSubmit}/>	
+				<RequestForm TANTOList={this.state.TANTOList} onRequestSubmit={this.handleRequestSubmit}/>	
 				<UserTable data={this.state.userStatus} handleApproveSubmit={this.handleApproveSubmit}/>				
 			</div>
 		);
@@ -84,6 +99,11 @@ var RequestForm = React.createClass({
 	render: function () {
 		return (
 			<form onSubmit={this.handleSubmit}>
+					<select ref="TANTOName">
+						{this.props.TANTOList.map(function (tanto) {
+							 return (<TANTOList key={tanto.TID} TID={tanto.TID} name={tanto.name}/>);
+							})}
+					</select>
 					<select ref="fromYear"><option>2015</option></select>年
 					<select ref="fromMonth"><option>1</option></select>月
 					<select ref="fromDay"><option>1</option></select>日
@@ -94,6 +114,14 @@ var RequestForm = React.createClass({
 					<select ref="toTime"><option>02</option></select>時まで
 					<input type="submit" value="送信"></input>
 				</form>	
+		);
+	}
+});
+
+var TANTOList = React.createClass({
+	render: function () {
+		return (
+			<option value={this.props.TID}>{this.props.name}</option>
 		);
 	}
 });
@@ -109,17 +137,17 @@ var UserTable = React.createClass({
 					<td></td>
 				</tr>
 				{this.props.data.map(function (user, i) {
-					return (<UserList user={user} key={i} handleApproveSubmit={this.props.handleApproveSubmit}/>);
+					return (<RequestedUserList user={user} index={i} key={user.TID} handleApproveSubmit={this.props.handleApproveSubmit}/>);
 				}.bind(this))}
 			</table>
 		);
 	}
 }).bind(this);
 
-var UserList = React.createClass({
+var RequestedUserList = React.createClass({
 	handleSubmit: function (e) {
 		e.preventDefault();
-		this.props.handleApproveSubmit(this.props.key);
+		this.props.handleApproveSubmit(this.props.index);
 		return;
 	},
 	render: function () {
@@ -136,6 +164,6 @@ var UserList = React.createClass({
 });
 
 React.render(
-	<List url="/js/data.json" pollInterval={2000} />,
+	<List userStatusUrl="/js/data.json" TANTOUrl="/js/TANTO.json" pollInterval={2000} />,
 	document.getElementById('contents')
 );
