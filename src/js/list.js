@@ -39,9 +39,9 @@ var List = React.createClass({
 			}.bind(this)
 		});
 	},
-	handleApproveSubmit: function (userId) {
+	handleApproveSubmit: function (key) {
 		var newUserStatus = this.state.userStatus;
-		newUserStatus[userId].state = 1;
+		newUserStatus[key].state = 1;
 		this.setState({userStatus: newUserStatus});
 	},
 	componentDidMount: function () {
@@ -52,7 +52,7 @@ var List = React.createClass({
 		return (
 			<div>
 				<RequestForm onRequestSubmit={this.handleRequestSubmit}/>	
-				<UserList data={this.state.userStatus} handleApproveSubmit={this.handleApproveSubmit}/>				
+				<UserTable data={this.state.userStatus} handleApproveSubmit={this.handleApproveSubmit}/>				
 			</div>
 		);
 	}
@@ -98,19 +98,8 @@ var RequestForm = React.createClass({
 	}
 });
 
-var UserList = React.createClass({
+var UserTable = React.createClass({
 	render: function () {
-		var handleApproveSubmit = this.props.handleApproveSubmit;
-		var status = this.props.data.map(function(user, i) {
-			var term = user.from + ' ~ ' + user.to;
-			return (
-				<tr>
-					<td>{user.name}</td>
-					<td>{term}</td>
-					<td>{mState[user.state]}</td>
-					<td><UserRequestApprove userId={i} userState={user.state} handleApproveSubmit={handleApproveSubmit}/></td>
-				</tr>);
-		});
 		return (
 			<table>
 				<tr>
@@ -119,21 +108,29 @@ var UserList = React.createClass({
 					<td>状態</td>
 					<td></td>
 				</tr>
-				{status}
+				{this.props.data.map(function (user, i) {
+					return (<UserList user={user} key={i} handleApproveSubmit={this.props.handleApproveSubmit}/>);
+				}.bind(this))}
 			</table>
 		);
 	}
 }).bind(this);
 
-var UserRequestApprove = React.createClass({
+var UserList = React.createClass({
 	handleSubmit: function (e) {
 		e.preventDefault();
-		this.props.handleApproveSubmit(this.props.userId);
+		this.props.handleApproveSubmit(this.props.key);
 		return;
 	},
 	render: function () {
+		var term = this.props.user.from + ' ~ ' + this.props.user.to;
 		return (
-			<form onSubmit={this.handleSubmit}><input type="submit" value={mApprove[this.props.userState]} /></form>
+					<tr>
+						<td>{this.props.user.name}</td>
+						<td>{term}</td>
+						<td>{mState[this.props.user.state]}</td>
+						<td><form onSubmit={this.handleSubmit}><input type="submit" value={mApprove[this.props.user.state]} /></form></td>
+					</tr>
 		);
 	}
 });
