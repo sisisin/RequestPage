@@ -76,6 +76,7 @@ var List = React.createClass({
 var RequestForm = React.createClass({
 	handleSubmit: function(e) {
 		e.preventDefault();
+		var TID = React.findDOMNode(this.refs.TID).value.trim();
 		var fromYear = React.findDOMNode(this.refs.fromYear).value.trim();
 		var fromMonth = React.findDOMNode(this.refs.fromMonth).value.trim();
 		var fromDay = React.findDOMNode(this.refs.fromDay).value.trim();
@@ -89,7 +90,7 @@ var RequestForm = React.createClass({
 		}
 
 		this.props.onRequestSubmit({
-			name:'sisisin',
+			name:TID,
 			from:fromYear + '/' + fromMonth + '/' + fromDay + ' ' + fromTime + ':00',
 			to:toYear + '/' + toMonth  + '/' + toDay + ' ' + toTime + ':00',
 			state:0
@@ -99,7 +100,7 @@ var RequestForm = React.createClass({
 	render: function () {
 		return (
 			<form onSubmit={this.handleSubmit}>
-					<select ref="TANTOName">
+					<select ref="TID">
 						{this.props.TANTOList.map(function (tanto) {
 							 return (<TANTOList key={tanto.TID} TID={tanto.TID} name={tanto.name}/>);
 							})}
