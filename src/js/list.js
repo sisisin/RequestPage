@@ -75,7 +75,7 @@ var List = React.createClass({
 		return (
 			<div>
 				<RequestForm TANTOList={this.state.TANTOList} onRequestSubmit={this.handleRequestSubmit}/>
-				<RequestDatePicker/>
+				<RequestDatePicker />
 				<UserTable data={this.state.userStatus} handleApproveSubmit={this.handleApproveSubmit}/>
 			</div>
 		);
@@ -93,8 +93,14 @@ var RequestDatePicker = React.createClass({
 		};
 	},
 	render() {
+		let formatDate = (dt) =>`${dt.getFullYear()}/${dt.getMonth() + 1}/${dt.getDate()}`
 		return (
-			<DatePicker hintText="Landscape Dialog" mode="landscape"/>
+			<DatePicker 
+				hintText="Landscape Dialog"
+				mode="landscape"
+				autoOk={true}
+				formatDate={formatDate}
+				/>
 		);
 	}
 });
