@@ -8,9 +8,14 @@ var _ = require('lodash');
 
 var mui = require('material-ui');
 var DatePicker = mui.DatePicker;
+let TimePicker = mui.TimePicker;
 let ThemeManager = new mui.Styles.ThemeManager();
 
 injectTapEventPlugin();
+
+let formatDate = (dt) => `${dt.getFullYear()}/${dt.getMonth() + 1}/${dt.getDate()}`;
+let formatTime = (dt) => `${dt.getHours()}:${dt.getMinutes()}`;
+let now = new Date();
 
 var List = React.createClass({
 	getInitialState: () => {
@@ -75,7 +80,6 @@ var List = React.createClass({
 		return (
 			<div>
 				<RequestForm TANTOList={this.state.TANTOList} onRequestSubmit={this.handleRequestSubmit}/>
-				<RequestDatePicker />
 				<UserTable data={this.state.userStatus} handleApproveSubmit={this.handleApproveSubmit}/>
 			</div>
 		);
@@ -93,56 +97,82 @@ var RequestDatePicker = React.createClass({
 		};
 	},
 	render() {
-		let formatDate = (dt) =>`${dt.getFullYear()}/${dt.getMonth() + 1}/${dt.getDate()}`
+
 		return (
 			<DatePicker 
+				ref="DatePicker"
 				hintText="Landscape Dialog"
 				mode="landscape"
 				autoOk={true}
+				defaultDate={now}
 				formatDate={formatDate}
 				/>
 		);
 	}
 });
 
+let RequestTimePicker = React.createClass({
+	childContextTypes: {
+		muiTheme: React.PropTypes.object
+	},
+	getChildContext() {
+		return {
+			muiTheme: ThemeManager.getCurrentTheme()
+		};
+	},
+	render() {
+		let nowtime = _.cloneDeep(now);
+		nowtime.setMinutes(0);
+		return (
+			<TimePicker 
+				ref="TimePicker"
+				hintText="Landscape Dialog"
+				format="24hr"
+				defaultTime={nowtime}
+				/>
+		);
+	}	
+});
+
 var RequestForm = React.createClass({
+	childContextTypes: {
+		muiTheme: React.PropTypes.object
+	},
+	getChildContext() {
+		return {
+			muiTheme: ThemeManager.getCurrentTheme()
+		};
+	},
+
 	handleSubmit: function(e) {
 		e.preventDefault();
+
 		var TID = React.findDOMNode(this.refs.TID).value.trim();
-		var fromYear = React.findDOMNode(this.refs.fromYear).value.trim();
-		var fromMonth = React.findDOMNode(this.refs.fromMonth).value.trim();
-		var fromDay = React.findDOMNode(this.refs.fromDay).value.trim();
-		var fromTime = React.findDOMNode(this.refs.fromTime).value.trim();
-		var toYear = React.findDOMNode(this.refs.toYear).value.trim();
-		var toMonth = React.findDOMNode(this.refs.toMonth).value.trim();
-		var toDay = React.findDOMNode(this.refs.toDay).value.trim();
-		var toTime = React.findDOMNode(this.refs.toTime).value.trim();
-		if (!fromYear || !fromMonth) {
-		return;
-		}
+		var fromDate = formatDate(this.refs.fromDatePicker.refs.DatePicker.getDate());
+		var fromTime = formatTime(this.refs.fromTimePicker.refs.TimePicker.getTime());
+		var toDate = formatDate(this.refs.toDatePicker.refs.DatePicker.getDate());
+		var toTime = formatTime(this.refs.toTimePicker.refs.TimePicker.getTime());
 
 		this.props.onRequestSubmit({
 			name:TID,
-			from:fromYear + '/' + fromMonth + '/' + fromDay + ' ' + fromTime + ':00',
-			to:toYear + '/' + toMonth  + '/' + toDay + ' ' + toTime + ':00',
+			from:fromDate + ' ' + fromTime,
+			to:toDate + ' ' + toTime,
 			state:0
 		});
 		return;
 	},
 	render: function () {
+
 		return (
 			<form onSubmit={this.handleSubmit}>
 					<select ref="TID">
 						{_.map(this.props.TANTOList, (tanto) => (<TANTOList key={tanto.TID} TID={tanto.TID} name={tanto.name}/>))}
 					</select>
-					<select ref="fromYear"><option>2015</option></select>年
-					<select ref="fromMonth"><option>1</option></select>月
-					<select ref="fromDay"><option>1</option></select>日
-					<select ref="fromTime"><option>01</option></select>時〜
-					<select ref="toYear"><option>2015</option></select>年
-					<select ref="toMonth"><option>1</option></select>月
-					<select ref="toDay"><option>2</option></select>日
-					<select ref="toTime"><option>02</option></select>時まで
+					<RequestDatePicker ref="fromDatePicker"/>
+					<RequestTimePicker ref="fromTimePicker"/>					
+					〜
+					<RequestDatePicker ref="toDatePicker"/>
+					<RequestTimePicker ref="toTimePicker"/>まで
 					<input type="submit" value="送信"></input>
 				</form>	
 		);
