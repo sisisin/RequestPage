@@ -139,7 +139,7 @@ var UserTable = React.createClass({
 				</tr>
 				{this.props.data.map((user, i) => {
 					return (<RequestedUserList user={user} index={i} key={user.TID} handleApproveSubmit={this.props.handleApproveSubmit}/>);
-				}}
+				})}
 			</table>
 		);
 	}
