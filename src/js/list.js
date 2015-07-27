@@ -7,7 +7,7 @@ var _ = require('lodash');
 
 
 var List = React.createClass({
-	getInitialState: function () {
+	getInitialState: () => {
 		return { userStatus: [], TANTOList:[] };
 	},
 	loadUserStatusFromServer: function () {
@@ -15,12 +15,12 @@ var List = React.createClass({
       url: this.props.userStatusUrl,
       dataType: 'json',
       cache: false,
-      success: function(data) {
+      success: (data) => {
         this.setState({userStatus: data});
-      }.bind(this),
-      error: function(xhr, status, err) {
+      },
+      error: (xhr, status, err) => {
         console.error(this.props.url, status, err.toString());
-      }.bind(this)
+      }
     });
 	},
 	loadTANTOListFromServer: function () {
@@ -28,12 +28,12 @@ var List = React.createClass({
       url: this.props.TANTOUrl,
       dataType: 'json',
       cache: false,
-      success: function(data) {
+      success: (data) => {
         this.setState({TANTOList: data});
-      }.bind(this),
-      error: function(xhr, status, err) {
+      },
+      error: (xhr, status, err) => {
         console.error(this.props.url, status, err.toString());
-      }.bind(this)			
+      }
 		});
 	},
 	handleRequestSubmit: function (term) {
@@ -46,12 +46,12 @@ var List = React.createClass({
 			dataType: 'json',
 			type: 'POST',
 			data: term,
-			success: function(data) {
+			success: (data) => {
 			this.setState({userStatus: data});
-			}.bind(this),
-			error: function(xhr, status, err) {
+			},
+			error: (xhr, status, err) => {
 			console.error(this.props.url, status, err.toString());
-			}.bind(this)
+			}
 		});
 	},
 	handleApproveSubmit: function (index) {
@@ -103,9 +103,7 @@ var RequestForm = React.createClass({
 		return (
 			<form onSubmit={this.handleSubmit}>
 					<select ref="TID">
-						{_.map(this.props.TANTOList, function (tanto) {
-							 return (<TANTOList key={tanto.TID} TID={tanto.TID} name={tanto.name}/>);
-							})}
+						{_.map(this.props.TANTOList, (tanto) => (<TANTOList key={tanto.TID} TID={tanto.TID} name={tanto.name}/>))}
 					</select>
 					<select ref="fromYear"><option>2015</option></select>年
 					<select ref="fromMonth"><option>1</option></select>月
