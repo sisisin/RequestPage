@@ -137,13 +137,13 @@ var UserTable = React.createClass({
 					<td>状態</td>
 					<td></td>
 				</tr>
-				{this.props.data.map(function (user, i) {
+				{this.props.data.map((user, i) => {
 					return (<RequestedUserList user={user} index={i} key={user.TID} handleApproveSubmit={this.props.handleApproveSubmit}/>);
-				}.bind(this))}
+				}}
 			</table>
 		);
 	}
-}).bind(this);
+});
 
 var RequestedUserList = React.createClass({
 	handleSubmit: function (e) {
