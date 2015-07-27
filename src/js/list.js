@@ -3,6 +3,8 @@ var $ = require('jquery');
 var master = require('../../public/js/master');
 var mState = master.state;
 var mApprove = master.approveButton;
+var _ = require('lodash');
+
 
 var List = React.createClass({
 	getInitialState: function () {
@@ -101,7 +103,7 @@ var RequestForm = React.createClass({
 		return (
 			<form onSubmit={this.handleSubmit}>
 					<select ref="TID">
-						{this.props.TANTOList.map(function (tanto) {
+						{_.map(this.props.TANTOList, function (tanto) {
 							 return (<TANTOList key={tanto.TID} TID={tanto.TID} name={tanto.name}/>);
 							})}
 					</select>
