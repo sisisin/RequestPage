@@ -1,10 +1,16 @@
 var React = require('react/addons');
+var injectTapEventPlugin = require('react-tap-event-plugin');
 var $ = require('jquery');
 var master = require('../../public/js/master');
 var mState = master.state;
 var mApprove = master.approveButton;
 var _ = require('lodash');
 
+var mui = require('material-ui');
+var DatePicker = mui.DatePicker;
+let ThemeManager = new mui.Styles.ThemeManager();
+
+injectTapEventPlugin();
 
 var List = React.createClass({
 	getInitialState: () => {
@@ -68,9 +74,27 @@ var List = React.createClass({
 	render: function () {
 		return (
 			<div>
-				<RequestForm TANTOList={this.state.TANTOList} onRequestSubmit={this.handleRequestSubmit}/>	
-				<UserTable data={this.state.userStatus} handleApproveSubmit={this.handleApproveSubmit}/>				
+				<RequestForm TANTOList={this.state.TANTOList} onRequestSubmit={this.handleRequestSubmit}/>
+				<RequestDatePicker/>
+				<UserTable data={this.state.userStatus} handleApproveSubmit={this.handleApproveSubmit}/>
 			</div>
+		);
+	}
+});
+
+
+var RequestDatePicker = React.createClass({
+	childContextTypes: {
+		muiTheme: React.PropTypes.object
+	},
+	getChildContext() {
+		return {
+			muiTheme: ThemeManager.getCurrentTheme()
+		};
+	},
+	render() {
+		return (
+			<DatePicker hintText="Landscape Dialog" mode="landscape"/>
 		);
 	}
 });
