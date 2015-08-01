@@ -72,10 +72,10 @@ var List = React.createClass({
 		switch (newUserStatus[index].state) {
 			case 0:
 				newUserStatus[index].state = 1;
-
+				break;
 			case 1:
-				newUserStatus[index].state = 9;
-
+				_.remove(newUserStatus, (val, i) => index === i);
+				break;
 			default:
 
 		}
@@ -160,13 +160,15 @@ var RequestForm = React.createClass({
 		e.preventDefault();
 
 		var TID = React.findDOMNode(this.refs.TID).value.trim();
+		let name = (_.find(this.props.TANTOList, (val) => val.TID === TID)).name;
 		var fromDate = formatDate(this.refs.fromDatePicker.getDate());
 		var fromTime = formatTime(this.refs.fromTimePicker.refs.TimePicker.getTime());
 		var toDate = formatDate(this.refs.toDatePicker.getDate());
 		var toTime = formatTime(this.refs.toTimePicker.refs.TimePicker.getTime());
 
 		this.props.onRequestSubmit({
-			name: TID,
+		TID: TID,
+		name: name,
 			from: fromDate + ' ' + fromTime,
 			to: toDate + ' ' + toTime,
 			state: 0
@@ -283,7 +285,9 @@ function convertTANTOListToTableRows(TANTOList, handleApproveSubmit) {
 	});
 };
 
+function getNameByTID(TID) {
 
+}
 
 React.render(
 	<List userStatusUrl="/js/data.json" TANTOUrl="/js/TANTO.json" pollInterval={2000} />,
