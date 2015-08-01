@@ -9,6 +9,7 @@ var _ = require('lodash');
 var mui = require('material-ui');
 var DatePicker = mui.DatePicker;
 let TimePicker = mui.TimePicker;
+let Table = mui.Table;
 let ThemeManager = new mui.Styles.ThemeManager();
 
 injectTapEventPlugin();
@@ -16,6 +17,17 @@ injectTapEventPlugin();
 let formatDate = (dt) => `${dt.getFullYear()}/${dt.getMonth() + 1}/${dt.getDate()}`;
 let formatTime = (dt) => `${dt.getHours()}:${dt.getMinutes()}`;
 let now = new Date();
+
+let convertTANTOListToTableRows = (TANTOList) => {
+	return _.map(TANTOList, (val) => {
+		return {
+			id: { content: val.TID },
+			name: { content: val.name},
+			term: { content: `${val.from} ~ ${val.to}` },
+			status: { content: mState[val.state] }
+		};
+	});
+}
 
 var List = React.createClass({
 	getInitialState: () => {
@@ -80,12 +92,19 @@ var List = React.createClass({
 		return (
 			<div>
 				<RequestForm TANTOList={this.state.TANTOList} onRequestSubmit={this.handleRequestSubmit} />
-				<UserTable data={this.state.userStatus} handleApproveSubmit={this.handleApproveSubmit} />
+				<RequestUserListTable rowData={this.state.userStatus}/>
 			</div>
 		);
+		/*		return (
+			<div>
+				<RequestForm TANTOList={this.state.TANTOList} onRequestSubmit={this.handleRequestSubmit} />
+				<UserTable data={this.state.userStatus} handleApproveSubmit={this.handleApproveSubmit} />
+				<RequestUserListTable rowData={this.state.userStatus}/>
+			</div>
+		);
+*/
 	}
 });
-
 
 var RequestDatePicker = React.createClass({
 	childContextTypes: {
@@ -190,25 +209,6 @@ var TANTOList = React.createClass({
 	}
 });
 
-var UserTable = React.createClass({
-	render: function () {
-		return (
-			<table>
-				<tr>
-					<td>名前</td>
-					<td>期間</td>
-					<td>状態</td>
-					<td></td>
-				</tr>
-				{this.props.data.map((user, i) => {
-				return (
-					<RequestedUserList user={user} index={i} key={user.TID} handleApproveSubmit={this.props.handleApproveSubmit} />);
-				})}
-			</table>
-		);
-	}
-});
-
 var RequestedUserList = React.createClass({
 	handleSubmit: function (e) {
 		e.preventDefault();
@@ -216,17 +216,66 @@ var RequestedUserList = React.createClass({
 		return;
 	},
 	render: function () {
-		var term = this.props.user.from + ' ~ ' + this.props.user.to;
 		return (
-					<tr>
-						<td>{this.props.user.name}</td>
-						<td>{term}</td>
-						<td>{mState[this.props.user.state]}</td>
-						<td><form onSubmit={this.handleSubmit}><input type="submit" value={mApprove[this.props.user.state]} /></form></td>
-					</tr>
+			<form onSubmit={this.handleSubmit}><input type="submit" value={mApprove[this.props.user.state]} /></form>
 		);
 	}
 });
+
+let RequestUserListTable = React.createClass({
+	childContextTypes: {
+		muiTheme: React.PropTypes.object
+	},
+	getChildContext() {
+		return {
+			muiTheme: ThemeManager.getCurrentTheme()
+		};
+	},
+	render() {
+		// Column configuration
+		let headerCols = {
+			id: {
+				content: 'ID',
+				tooltip: 'TANTO ID'
+			},
+			name: {
+				content: 'Name',
+				tooltip: 'TANTO name'
+			},
+			term: {
+				content: 'Term',
+				tooltip: 'Connect Term'
+			},
+			status: {
+				content: 'Status',
+				tooltip: 'VDI status'
+			}
+		};
+		let colOrder = ['id', 'name', 'term', 'status'];
+		// Footer column content can also be specified as [ 'ID', 'Name', 'Status'].
+		let footerCols = {
+			id: { content: 'ID' }, name: { content: 'Name' }, term: { content: 'Term' }, status: { content: 'Status' }
+		};
+
+		// Table component
+		return(
+		<Table
+		headerColumns={headerCols}
+		footerColumns={footerCols}
+		columnOrder={colOrder}
+		rowData={convertTANTOListToTableRows(this.props.rowData)}
+		height={'300px'}
+		fixedHeader={true}
+		fixedFooter={true}
+		stripedRows={true}
+		showRowHover={true}
+		displayRowCheckbox={false}
+		displaySelectAll={false}
+		onRowSelection={this._onRowSelection} />
+		);
+}
+});
+
 
 React.render(
 	<List userStatusUrl="/js/data.json" TANTOUrl="/js/TANTO.json" pollInterval={2000} />,
