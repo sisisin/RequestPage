@@ -18,16 +18,6 @@ let formatDate = (dt) => `${dt.getFullYear()}/${dt.getMonth() + 1}/${dt.getDate(
 let formatTime = (dt) => `${dt.getHours()}:${dt.getMinutes()}`;
 let now = new Date();
 
-let convertTANTOListToTableRows = (TANTOList) => {
-	return _.map(TANTOList, (val) => {
-		return {
-			id: { content: val.TID },
-			name: { content: val.name},
-			term: { content: `${val.from} ~ ${val.to}` },
-			status: { content: mState[val.state] }
-		};
-	});
-}
 
 var List = React.createClass({
 	getInitialState: () => {
@@ -79,7 +69,16 @@ var List = React.createClass({
 	},
 	handleApproveSubmit: function (index) {
 		var newUserStatus = this.state.userStatus;
-		newUserStatus[index].state = 1;
+		switch (newUserStatus[index].state) {
+			case 0:
+				newUserStatus[index].state = 1;
+
+			case 1:
+				newUserStatus[index].state = 9;
+
+			default:
+
+		}
 		this.setState({ userStatus: newUserStatus });
 	},
 	componentDidMount: function () {
@@ -92,17 +91,9 @@ var List = React.createClass({
 		return (
 			<div>
 				<RequestForm TANTOList={this.state.TANTOList} onRequestSubmit={this.handleRequestSubmit} />
-				<RequestUserListTable rowData={this.state.userStatus}/>
+				<RequestUserListTable rowData={this.state.userStatus} handleApproveSubmit={this.handleApproveSubmit}/>
 			</div>
 		);
-		/*		return (
-			<div>
-				<RequestForm TANTOList={this.state.TANTOList} onRequestSubmit={this.handleRequestSubmit} />
-				<UserTable data={this.state.userStatus} handleApproveSubmit={this.handleApproveSubmit} />
-				<RequestUserListTable rowData={this.state.userStatus}/>
-			</div>
-		);
-*/
 	}
 });
 
@@ -217,7 +208,7 @@ var RequestedUserList = React.createClass({
 	},
 	render: function () {
 		return (
-			<form onSubmit={this.handleSubmit}><input type="submit" value={mApprove[this.props.user.state]} /></form>
+			<form onSubmit={this.handleSubmit}><input type="submit" value={mApprove[this.props.userState]} /></form>
 		);
 	}
 });
@@ -249,12 +240,16 @@ let RequestUserListTable = React.createClass({
 			status: {
 				content: 'Status',
 				tooltip: 'VDI status'
+			},
+			requestButton: {
+				content: 'requestButton',
+				tooltip: 'requestButton'
 			}
 		};
-		let colOrder = ['id', 'name', 'term', 'status'];
+		let colOrder = ['id', 'name', 'term', 'status', 'requestButton'];
 		// Footer column content can also be specified as [ 'ID', 'Name', 'Status'].
 		let footerCols = {
-			id: { content: 'ID' }, name: { content: 'Name' }, term: { content: 'Term' }, status: { content: 'Status' }
+			id: { content: 'ID' }, name: { content: 'Name' }, term: { content: 'Term' }, status: { content: 'Status' }, requestButton: { content: 'requestButton' }
 		};
 
 		// Table component
@@ -263,7 +258,7 @@ let RequestUserListTable = React.createClass({
 		headerColumns={headerCols}
 		footerColumns={footerCols}
 		columnOrder={colOrder}
-		rowData={convertTANTOListToTableRows(this.props.rowData)}
+		rowData={convertTANTOListToTableRows(this.props.rowData, this.props.handleApproveSubmit)}
 		height={'300px'}
 		fixedHeader={true}
 		fixedFooter={true}
@@ -275,6 +270,19 @@ let RequestUserListTable = React.createClass({
 		);
 }
 });
+
+function convertTANTOListToTableRows(TANTOList, handleApproveSubmit) {
+	return _.map(TANTOList, (val, i) => {
+		return {
+			id: { content: val.TID },
+			name: { content: val.name },
+			term: { content: `${val.from} ~ ${val.to}` },
+			status: { content: mState[val.state] },
+			requestButton: { content: <RequestedUserList index={i} userState={val.state} handleApproveSubmit={handleApproveSubmit}/> }
+		};
+	});
+};
+
 
 
 React.render(
