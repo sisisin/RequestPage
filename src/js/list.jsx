@@ -115,6 +115,7 @@ var RequestDatePicker = React.createClass({
 			<DatePicker ref="DatePicker"
 									hintText="Landscape Dialog"
 									mode="landscape"
+									className={this.props.className}
 									autoOk={true}
 									defaultDate={now}
 									formatDate={formatDate} />
@@ -140,6 +141,8 @@ let RequestTimePicker = React.createClass({
 		return (
 			<TimePicker ref="TimePicker"
 									hintText="Landscape Dialog"
+									style={{width:'200px'}}
+									className={this.props.className}
 									format="24hr"
 									defaultTime={nowtime} />
 		);
@@ -179,15 +182,14 @@ var RequestForm = React.createClass({
 
 		return (
 			<form onSubmit={this.handleSubmit}>
-					<select ref="TID">
+					<select ref="TID" className="float picker">
 						{_.map(this.props.TANTOList, (tanto) => (
 						<TANTOList key={tanto.TID} TID={tanto.TID} name={tanto.name} />))}
 					</select>
-					<RequestDatePicker ref="fromDatePicker" />
-					<RequestTimePicker ref="fromTimePicker" />
-				〜
-					<RequestDatePicker ref="toDatePicker" />
-					<RequestTimePicker ref="toTimePicker" />まで
+					<RequestDatePicker ref="fromDatePicker" className="float"/>
+					<RequestTimePicker ref="fromTimePicker"  className="float"/><div className="float picker">～</div>
+					<RequestDatePicker ref="toDatePicker"  className="float"/>
+					<RequestTimePicker ref="toTimePicker"/>まで
 					<input type="submit" value="送信" />
 			</form>
 		);
@@ -195,11 +197,7 @@ var RequestForm = React.createClass({
 });
 
 var TANTOList = React.createClass({
-	render: function () {
-		return (
-			<option value={this.props.TID}>{this.props.name}</option>
-		);
-	}
+	render() { return ( <option value={this.props.TID}>{this.props.name}</option> ); }
 });
 
 var RequestedUserList = React.createClass({
